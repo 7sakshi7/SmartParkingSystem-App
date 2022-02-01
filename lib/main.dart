@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:parking/map.dart';
+import 'package:parking/home.dart';
 import 'package:parking/views/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'dart:convert';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,22 +22,43 @@ class _MyAppState extends State<MyApp> {
 
   late SharedPreferences prefs;
 
-  int? entryTime;
+  late int entryTime;
 
-  String? token,number;
+  late String token, number, numberplate;
+
+  final databaseRef = FirebaseDatabase.instance.reference().child('users');
 
   void isLoggedIn() async {
     prefs = await SharedPreferences.getInstance();
-    String? _seenNull = prefs.getString('token');
-    if (_seenNull == null) {
+    String? isToken = prefs.getString('token');
+    print(isToken);
+    if (isToken == null) {
       checkForToken = 0;
+      setState(() {});
     } else {
-      checkForToken = 1;
-      token = prefs.getString('token');
-      number = prefs.getString('number');
-      entryTime = prefs.getInt('entryTime');
-    } 
-    setState(() {});
+      databaseRef.get().then((DataSnapshot value) {
+        Map<String, dynamic> data = jsonDecode(jsonEncode(value.value));
+        bool found = false;
+
+        data.forEach((docId, docValue) {
+          print(docId.toString());
+          if (docId.toString() == isToken && docValue["payment"] == false) {
+            print('enetred');
+            found = true;
+            entryTime = docValue["entryTime"];
+            token = docValue["token"];
+            number = docValue["number"];
+            numberplate = docValue["numberplate"];
+            checkForToken = 1;
+            setState(() {});
+          }
+        });
+        if (!found) {
+          checkForToken = 0;
+          setState(() {});
+        }
+      });
+    }
   }
 
   @override
@@ -49,10 +72,11 @@ class _MyAppState extends State<MyApp> {
       home: checkForToken == -1
           ? const Center(child: CircularProgressIndicator())
           : checkForToken == 1
-              ? Navigation(
-                  number: number ?? '',
-                  entryTime: entryTime ?? 0,
-                  token: token ?? '',
+              ? Home(
+                  number: number,
+                  entryTime: entryTime,
+                  token: token,
+                  numberplate: numberplate,
                 )
               : Login(),
     );
