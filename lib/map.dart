@@ -122,7 +122,7 @@ class _NavigationState extends State<Navigation> {
             children: [
               Column(
                 children:[
-                  const Text("Welcome! Number Plate",style: TextStyle(
+                  const Text("Welcome! HR05 AC 2083",style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 24
                   ),),
