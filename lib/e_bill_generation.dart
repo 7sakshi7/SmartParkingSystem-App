@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:parking/views/login.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -51,14 +51,14 @@ class _EBillState extends State<EBill> {
   void paymentDone() async {
     final prefs = await SharedPreferences.getInstance();
     String isToken = prefs.getString('token') ?? "";
-    final databaseRef = FirebaseDatabase.instance.reference().child('users');
+    final databaseRef = FirebaseDatabase.instance.ref().child('users');
     databaseRef.get().then((DataSnapshot value) {
       Map<String, dynamic> data = jsonDecode(jsonEncode(value.value));
       bool found = false;
 
       data.forEach((docId, docValue) {
         if (docId.toString() == isToken) {
-          FirebaseDatabase.instance.reference().child('users/$isToken').update(
+          FirebaseDatabase.instance.ref().child('users/$isToken').update(
             {"payment": true},
           );
         }
@@ -67,28 +67,12 @@ class _EBillState extends State<EBill> {
       FirebaseDatabase.instance
           .ref()
           .update({"parking-system-5f1ab-default-rtdb": "true"});
-          // .child('parking-system-5f1ab-default-rtdb')
+      // .child('parking-system-5f1ab-default-rtdb')
     });
 
     // removing data
 
     prefs.remove('token');
-
-    // // updating data to firebase
-    // var collection = FirebaseFirestore.instance.collection("users");
-    // var querySnapShot = await collection.get();
-    // bool found = false;
-    // for (var queryDocumentSnapShot in querySnapShot.docs) {
-    //   Map<String, dynamic> data = queryDocumentSnapShot.data();
-    //   if (data["token"] == tokenName && data["payment"] == false) {
-    //     FirebaseFirestore.instance
-    //         .collection('users')
-    //         .doc(queryDocumentSnapShot.id)
-    //         .update(
-    //       {"payment": true},
-    //     );
-    //   }
-    // }
   }
 
   void handlerPaymentSuccess(PaymentSuccessResponse response) {
@@ -119,6 +103,9 @@ class _EBillState extends State<EBill> {
     } else if (diff.inMinutes > 1440) {
       double h = diff.inMinutes / 1440;
       hours = h.toInt();
+      minutes = diff.inMinutes % 60;
+    } else {
+      hours = (diff.inMinutes / 60) as int;
       minutes = diff.inMinutes % 60;
     }
     String sec = diff.inSeconds.toString();

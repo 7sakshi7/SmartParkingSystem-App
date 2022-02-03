@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:parking/e_bill_generation.dart';
 import 'package:parking/map.dart';
+import 'package:parking/rate_list.dart';
 import 'package:parking/views/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -11,18 +12,20 @@ class Home extends StatefulWidget {
   final String token;
   final String number;
   final String numberplate;
+  final String parkingId;
   Home(
       {required this.entryTime,
       required this.token,
       required this.number,
-      required this.numberplate});
+      required this.numberplate,
+      required this.parkingId});
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final databaseRef = FirebaseDatabase.instance.reference().child('users');
+  final databaseRef = FirebaseDatabase.instance.ref().child('users');
 
   void paymentDone() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -61,11 +64,28 @@ class _HomeState extends State<Home> {
                     elevation: 6.0,
                     child: ListTile(
                       onTap: () {
-                        Navigator.push(context,
-                            MaterialPageRoute(builder: (context) => areaMap()));
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const areaMap()));
                       },
                       leading: const Icon(Icons.map_outlined),
                       title: const Text("Find an Empty slot"),
+                      trailing: const Icon(Icons.arrow_forward_rounded),
+                    ),
+                  ),
+                  Card(
+                    elevation: 6.0,
+                    child: ListTile(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    RateList(parkingId: widget.parkingId)));
+                      },
+                      leading: const Icon(Icons.list_alt_outlined),
+                      title: const Text("See Rate List"),
                       trailing: const Icon(Icons.arrow_forward_rounded),
                     ),
                   ),

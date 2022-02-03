@@ -24,7 +24,7 @@ class _MyAppState extends State<MyApp> {
 
   late int entryTime;
 
-  late String token, number, numberplate;
+  late String token, number, numberplate,parkingId;
 
   final databaseRef = FirebaseDatabase.instance.reference().child('users');
 
@@ -48,7 +48,8 @@ class _MyAppState extends State<MyApp> {
             entryTime = docValue["entryTime"];
             token = docValue["token"];
             number = docValue["number"];
-            numberplate = docValue["numberplate"];
+            numberplate = docValue["nameplate"];
+            parkingId = docValue["parkingId"];
             checkForToken = 1;
             setState(() {});
           }
@@ -77,6 +78,7 @@ class _MyAppState extends State<MyApp> {
                   entryTime: entryTime,
                   token: token,
                   numberplate: numberplate,
+                  parkingId: parkingId,
                 )
               : Login(),
     );
