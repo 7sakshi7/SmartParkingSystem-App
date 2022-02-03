@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "304851805992",
+    "firebase_url":"https://parking-system-5f1ab-default-rtdb.firebaseio.com/",
     "project_id": "parking-system-5f1ab",
     "storage_bucket": "parking-system-5f1ab.appspot.com"
   },

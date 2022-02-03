@@ -48,7 +48,7 @@ class _MyAppState extends State<MyApp> {
             entryTime = docValue["entryTime"];
             token = docValue["token"];
             number = docValue["number"];
-            numberplate = docValue["nameplate"];
+            numberplate = docValue["numberplate"];
             parkingId = docValue["parkingId"];
             checkForToken = 1;
             setState(() {});
