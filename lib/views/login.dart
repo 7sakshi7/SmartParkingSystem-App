@@ -7,7 +7,7 @@ import 'dart:convert';
 
 class Login extends StatelessWidget {
   TextEditingController textEditingController = TextEditingController();
-  final databaseRef = FirebaseDatabase.instance.reference().child('users');
+  final databaseRef = FirebaseDatabase.instance.ref().child('users');
 
   Login({Key? key}) : super(key: key);
 
@@ -40,11 +40,10 @@ class Login extends StatelessWidget {
             const SizedBox(
               height: 12,
             ),
-            RaisedButton(
-              color: Colors.blue,
+            ElevatedButton(
               onPressed: () async {
                 FocusScope.of(context).focusedChild!.unfocus();
-                databaseRef.get().then((DataSnapshot value) {
+                await databaseRef.get().then((DataSnapshot value) {
                   Map<String, dynamic> data =
                       jsonDecode(jsonEncode(value.value));
                   bool found = false;

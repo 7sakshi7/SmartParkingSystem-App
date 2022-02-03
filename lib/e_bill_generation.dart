@@ -18,7 +18,8 @@ class EBill extends StatefulWidget {
 }
 
 class _EBillState extends State<EBill> {
-  late int days, hours, seconds, minutes, totalAmount = 0;
+  late int days, hours, seconds, minutes;
+  int totalAmount = 0;
   late Razorpay razorpay;
   late String tokenName, numberString;
   late Timer timer;
@@ -51,14 +52,14 @@ class _EBillState extends State<EBill> {
   void paymentDone() async {
     final prefs = await SharedPreferences.getInstance();
     String isToken = prefs.getString('token') ?? "";
-    final databaseRef = FirebaseDatabase.instance.reference().child('users');
+    final databaseRef = FirebaseDatabase.instance.ref().child('users');
     databaseRef.get().then((DataSnapshot value) {
       Map<String, dynamic> data = jsonDecode(jsonEncode(value.value));
       bool found = false;
 
       data.forEach((docId, docValue) {
         if (docId.toString() == isToken) {
-          FirebaseDatabase.instance.reference().child('users/$isToken').update(
+          FirebaseDatabase.instance.ref().child('users/$isToken').update(
             {"payment": true},
           );
         }
@@ -67,7 +68,7 @@ class _EBillState extends State<EBill> {
       FirebaseDatabase.instance
           .ref()
           .update({"parking-system-5f1ab-default-rtdb": "true"});
-          // .child('parking-system-5f1ab-default-rtdb')
+      // .child('parking-system-5f1ab-default-rtdb')
     });
 
     // removing data
@@ -121,12 +122,16 @@ class _EBillState extends State<EBill> {
       hours = h.toInt();
       minutes = diff.inMinutes % 60;
     }
+    else{
+      hours = diff.inMinutes~/60;
+      minutes = diff.inMinutes % 60;
+    }
     String sec = diff.inSeconds.toString();
     sec = sec.substring(sec.length - 2);
     seconds = int.parse(sec);
     seconds = seconds < 60 ? seconds : seconds % 60;
     totalAmount = (days * 200) + (hours * 10) + (minutes * 4);
-    setState(() {});
+    setState((){});
   }
 
   @override
@@ -150,88 +155,107 @@ class _EBillState extends State<EBill> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bill'),
+        // toolbarHeight: 200,
+        // title: const Text('My Bill'),
+        // bottom: PreferredSizeWidget(
+        //
+        // // ),
+        // flexibleSpace: SizedBox(
+        //   height: 200,
+        //   child: Row(
+        //     children: const [
+        //       Image(image: AssetImage('assets/images/images-removebg-preview.png'),),
+        //       Text('My Bill'),
+        //     ],
+        //   )
+        // )
+        // FlexibleSpaceBar(
+        //   title: const Text('My Bill'),
+        //   centerTitle: true,
+        //   background: Image(image: AssetImage('assets/images/images-removebg-preview.png'),),
+        // ),
       ),
       body: SafeArea(
-          child: Center(
-        child: Card(
-          elevation: 10.0,
-          child: Container(
-            width: MediaQuery.of(context).size.width / 2 +
-                MediaQuery.of(context).size.width / 3,
-            height: MediaQuery.of(context).size.height / 2,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                ListTile(
-                  title: const Text(
-                    'No Of Days :',
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+        child: Center(
+          child: Card(
+            elevation: 10.0,
+            child: Container(
+              width: MediaQuery.of(context).size.width / 2 +
+                  MediaQuery.of(context).size.width / 3,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ListTile(
+                    title: const Text(
+                      'No Of Days :',
+                      style:
+                          TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Text(
+                      '${days.toString()} days',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
                   ),
-                  trailing: Text(
-                    '${days.toString()} days',
-                    style: const TextStyle(fontSize: 20.0),
+                  ListTile(
+                    title: const Text(
+                      'No Of Hours :',
+                      style:
+                          TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Text(
+                      '${hours.toString()} hours',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
                   ),
-                ),
-                ListTile(
-                  title: const Text(
-                    'No Of Hours :',
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ListTile(
+                    title: const Text(
+                      'Minutes :',
+                      style:
+                          TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Text(
+                      '${minutes.toString()} minutes',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
                   ),
-                  trailing: Text(
-                    '${hours.toString()} hours',
-                    style: const TextStyle(fontSize: 20.0),
+                  ListTile(
+                    title: const Text(
+                      'Seconds :',
+                      style:
+                          TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Text(
+                      '${seconds.toString()} seconds',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
                   ),
-                ),
-                ListTile(
-                  title: const Text(
-                    'Minutes :',
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  ListTile(
+                    title: const Text(
+                      'Total Amount :',
+                      style:
+                          TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                    ),
+                    trailing: Text(
+                      '${totalAmount.toString()} Rs',
+                      style: const TextStyle(fontSize: 20.0),
+                    ),
                   ),
-                  trailing: Text(
-                    '${minutes.toString()} minutes',
-                    style: const TextStyle(fontSize: 20.0),
-                  ),
-                ),
-                ListTile(
-                  title: const Text(
-                    'Seconds :',
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                  ),
-                  trailing: Text(
-                    '${seconds.toString()} seconds',
-                    style: const TextStyle(fontSize: 20.0),
-                  ),
-                ),
-                ListTile(
-                  title: const Text(
-                    'Total Amount :',
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-                  ),
-                  trailing: Text(
-                    '${totalAmount.toString()} Rs',
-                    style: const TextStyle(fontSize: 20.0),
-                  ),
-                ),
-                RaisedButton(
-                  onPressed: openCheckout,
-                  color: Colors.blue,
-                  padding: const EdgeInsets.all(10.0),
-                  child: const Text(
-                    "Pay Bill",
-                    style: TextStyle(color: Colors.white, fontSize: 20.0),
-                  ),
-                )
-              ],
+                  RaisedButton(
+                    onPressed: openCheckout,
+                    color: Colors.blue,
+                    padding: const EdgeInsets.all(10.0),
+                    child: const Text(
+                      "Pay Bill",
+                      style: TextStyle(color: Colors.white, fontSize: 20.0),
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
-      )),
+      ),
     );
   }
 }

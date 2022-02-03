@@ -25,9 +25,7 @@ class _MyAppState extends State<MyApp> {
   late int entryTime;
 
   late String token, number, numberplate;
-
-  final databaseRef = FirebaseDatabase.instance.reference().child('users');
-
+  final databaseRef = FirebaseDatabase.instance.ref().child('users');
   void isLoggedIn() async {
     prefs = await SharedPreferences.getInstance();
     String? isToken = prefs.getString('token');
@@ -35,20 +33,25 @@ class _MyAppState extends State<MyApp> {
     if (isToken == null) {
       checkForToken = 0;
       setState(() {});
-    } else {
-      databaseRef.get().then((DataSnapshot value) {
-        Map<String, dynamic> data = jsonDecode(jsonEncode(value.value));
+    } else{
+      databaseRef.get().then((DataSnapshot value) async{
+        Map<String, dynamic> data = await jsonDecode(jsonEncode(value.value));
         bool found = false;
 
         data.forEach((docId, docValue) {
           print(docId.toString());
           if (docId.toString() == isToken && docValue["payment"] == false) {
-            print('enetred');
+            print('entered');
             found = true;
+            print(docValue['entryTime'].runtimeType);
             entryTime = docValue["entryTime"];
+            print("*******${entryTime}");
             token = docValue["token"];
+            print("!!!!!!!${token}");
             number = docValue["number"];
-            numberplate = docValue["numberplate"];
+            print("#######${number}");
+            numberplate = docValue["nameplate"];
+            print("@@@@@@@${numberplate}");
             checkForToken = 1;
             setState(() {});
           }
@@ -69,8 +72,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: checkForToken == -1
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: Scaffold(body: Center(child: CircularProgressIndicator())))
           : checkForToken == 1
               ? Home(
                   number: number,
